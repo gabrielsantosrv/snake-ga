@@ -14,7 +14,7 @@ class Agent:
             num_actions: The number of actions
             action_space: To call the random action
         """
-        self.epsilon = epsilon
+        self.epsilon_0 = epsilon
         self.alpha = alpha
         self.gamma = gamma
         self.num_state = num_state
@@ -22,21 +22,27 @@ class Agent:
 
         self.Q = np.zeros((self.num_state, self.num_actions))
         self.action_space = action_space
-
+        self.visit_counter = [0]*self.num_state
     """
     The Base class that is implemented by
     other classes to avoid the duplicate 'choose_action'
     method
     """
     def choose_action(self, state):
-        if np.random.uniform(0, 1) < self.epsilon:
+        epsilon = self.epsilon_0 / (self.epsilon_0 + self.visit_counter[state])
+        if np.random.uniform(0, 1) < epsilon:
             action = self.action_space[randint(0, self.num_actions-1)]
         else:
             action = self.action_space[np.argmax(self.Q[state, :])]
+
+        self.visit_counter[state] += 1
         return action
 
     @abstractmethod
     def update(self, prev_state, next_state, reward, prev_action, next_action):
+        pass
+
+    def update_epsilon(self):
         pass
 
 

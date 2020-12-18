@@ -158,7 +158,7 @@ if __name__ == '__main__':
     params['episodes'] = args.episodes
 
     # Defining all the required parameters
-    epsilon = 0.1
+    epsilon = 1
     total_episodes = 500
     max_steps = 100
     alpha = 0.5
