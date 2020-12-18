@@ -1,8 +1,9 @@
+from abc import abstractmethod
+from random import randint
+
 import numpy as np
-from Agent import Agent
 
-
-class QLearningAgent(Agent):
+class Agent:
     def __init__(self, epsilon, alpha, gamma, num_state, num_actions, action_space):
         """
         Contructor
@@ -22,7 +23,25 @@ class QLearningAgent(Agent):
         self.Q = np.zeros((self.num_state, self.num_actions))
         self.action_space = action_space
 
-    def update(self, prev_state, next_state, reward, prev_action):
+    """
+    The Base class that is implemented by
+    other classes to avoid the duplicate 'choose_action'
+    method
+    """
+    def choose_action(self, state):
+        if np.random.uniform(0, 1) < self.epsilon:
+            action = self.action_space[randint(0, self.num_actions-1)]
+        else:
+            action = np.argmax(self.Q[state, :])
+        return action
+
+    @abstractmethod
+    def update(self, prev_state, next_state, reward, prev_action, next_action):
+        pass
+
+
+class QLearningAgent(Agent):
+    def update(self, prev_state, next_state, reward, prev_action, next_action):
         """
         Update the action value function using the Q-Learning update.
         Q(S_t, A_t) = Q(S_t, A_t) + alpha(reward + (gamma * Max Q(S_t+1, *) - Q(S_t, A_t))
@@ -31,6 +50,7 @@ class QLearningAgent(Agent):
             next_state: The next state
             reward: The reward for taking the respective action
             prev_action: The previous action
+            next_action: The next action
         Returns:
             None
         """
