@@ -10,31 +10,7 @@ import seaborn as sns
 
 from agent import Agent, QLearningAgent
 from environment import Environment
-#################################
-#   Define parameters manually  #
-#################################
 from screen import Screen
-
-
-def define_parameters():
-    params = dict()
-    # Neural Network
-    params['epsilon_decay_linear'] = 1 / 90
-    params['learning_rate'] = 0.00013629
-    params['first_layer_size'] = 200  # neurons in the first layer
-    params['second_layer_size'] = 20  # neurons in the second layer
-    params['third_layer_size'] = 50  # neurons in the third layer
-    params['episodes'] = 150
-    params['memory_size'] = 2500
-    params['batch_size'] = 1000
-    # Settings
-    params['weights_path'] = 'weights/weights.h5'
-    params['load_weights'] = True
-    params['train'] = False
-    params["test"] = True
-    params['plot_score'] = True
-    params['log_path'] = 'logs/scores_' + str(datetime.datetime.now().strftime("%Y%m%d%H%M%S")) + '.txt'
-    return params
 
 
 def plot_metrics(metrics, filepath=None):
@@ -84,9 +60,6 @@ def decode_action(encoded_action):
 
 
 def run(params, agent: Agent):
-    """
-    Run the DQN algorithm, based on the parameters previously set.   
-    """
     pygame.init()
 
     env = Environment(440, 440)
@@ -159,7 +132,6 @@ if __name__ == '__main__':
 
     # Defining all the required parameters
     epsilon = 1
-    total_episodes = 500
     max_steps = 100
     alpha = 0.5
     gamma = 1
