@@ -1,18 +1,15 @@
-import os
-import pygame
 import argparse
-import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
-import statistics
-
-from agent import Agent, QLearningAgent
-from bayesOpt import *
 import datetime
 import distutils.util
 
-from environment import Environment
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import pygame
+import seaborn as sns
 
+from agent import Agent, QLearningAgent
+from environment import Environment
 #################################
 #   Define parameters manually  #
 #################################
@@ -40,46 +37,31 @@ def define_parameters():
     return params
 
 
-def get_record(score, record):
-    if score >= record:
-        return score
+def plot_metrics(metrics, filepath=None):
+    formatted_dict = {'episodes': [],
+                      'metrics': [],
+                      'results': []}
+
+    n = len(metrics['episodes'])
+    for i in range(n):
+        episode = metrics['episodes'][i]
+        score = metrics['scores'][i]
+        reward = metrics['rewards'][i]
+
+        formatted_dict['episodes'].append(episode)
+        formatted_dict['metrics'].append('score')
+        formatted_dict['results'].append(score)
+
+        formatted_dict['episodes'].append(episode)
+        formatted_dict['metrics'].append('reward')
+        formatted_dict['results'].append(reward)
+
+    df_metrics = pd.DataFrame(formatted_dict)
+    sns.lineplot(data=df_metrics, x='episodes', y='results', hue='metrics')
+    if filepath is None:
+        plt.show()
     else:
-        return record
-
-
-def plot_seaborn(array_counter, array_score, train):
-    sns.set(color_codes=True, font_scale=1.5)
-    sns.set_style("white")
-    plt.figure(figsize=(13, 8))
-    fit_reg = False if train == False else True
-    ax = sns.regplot(
-        np.array([array_counter])[0],
-        np.array([array_score])[0],
-        # color="#36688D",
-        x_jitter=.1,
-        scatter_kws={"color": "#36688D"},
-        label='Data',
-        fit_reg=fit_reg,
-        line_kws={"color": "#F49F05"}
-    )
-    # Plot the average line
-    y_mean = [np.mean(array_score)] * len(array_counter)
-    ax.plot(array_counter, y_mean, label='Mean', linestyle='--')
-    ax.legend(loc='upper right')
-    ax.set(xlabel='# games', ylabel='score')
-    plt.show()
-
-
-def get_mean_stdev(array):
-    return statistics.mean(array), statistics.stdev(array)
-
-
-def test(params):
-    params['load_weights'] = True
-    params['train'] = False
-    params["test"] = False
-    score, mean, stdev = run(params)
-    return score, mean, stdev
+        plt.savefig(filepath)
 
 
 def decode_state(encoded_state):
@@ -110,10 +92,12 @@ def run(params, agent: Agent):
     env = Environment(440, 440)
     screen = Screen(env)
 
-    counter_games = 0
-    score_plot = []
-    counter_plot = []
-    while counter_games < params['episodes']:
+    episode = 0
+    metrics = {'episodes': [],
+               'scores': [],
+               'rewards': []}
+
+    while episode < params['episodes']:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -146,28 +130,32 @@ def run(params, agent: Agent):
                 screen.display()
                 pygame.time.wait(params['speed'])
 
-        counter_games += 1
-        print(f'Game {counter_games}      Score: {env.game.score}')
+        episode += 1
+        print(f'Game {episode}      Score: {env.game.score}')
 
-        score_plot.append(env.game.score)
-        counter_plot.append(counter_games)
+        mean_reward = episode_reward/params['episodes']
+        metrics['episodes'].append(episode)
+        metrics['rewards'].append(mean_reward)
+        metrics['scores'].append(env.game.score)
 
-    if params['plot_score']:
-        plot_seaborn(counter_plot, score_plot, params['train'])
-
+    return metrics
 
 if __name__ == '__main__':
     # Set options to activate or deactivate the game view, and its speed
     pygame.font.init()
     parser = argparse.ArgumentParser()
-    params = define_parameters()
     parser.add_argument("--display", nargs='?', type=distutils.util.strtobool, default=True)
     parser.add_argument("--speed", nargs='?', type=int, default=50)
+    parser.add_argument("--episodes", nargs='?', type=int, default=150)
+    parser.add_argument("--figure", nargs='?', type=str, default=None)
 
     args = parser.parse_args()
     print("Args", args)
+
+    params = dict()
     params['display'] = args.display
     params['speed'] = args.speed
+    params['episodes'] = args.episodes
 
     # Defining all the required parameters
     epsilon = 0.1
@@ -181,4 +169,7 @@ if __name__ == '__main__':
     num_state = 2 ** 11
     qLearningAgent = QLearningAgent(epsilon, alpha, gamma, num_state, num_actions, action_space)
 
-    run(params, qLearningAgent)
+    metrics = run(params, qLearningAgent)
+    plot_metrics(metrics, filepath=args.figure)
+
+
