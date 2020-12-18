@@ -13,7 +13,6 @@ import distutils.util
 
 from environment import Environment
 
-
 #################################
 #   Define parameters manually  #
 #################################
@@ -23,12 +22,12 @@ from screen import Screen
 def define_parameters():
     params = dict()
     # Neural Network
-    params['epsilon_decay_linear'] = 1/90
+    params['epsilon_decay_linear'] = 1 / 90
     params['learning_rate'] = 0.00013629
-    params['first_layer_size'] = 200    # neurons in the first layer
-    params['second_layer_size'] = 20   # neurons in the second layer
-    params['third_layer_size'] = 50    # neurons in the third layer
-    params['episodes'] = 150          
+    params['first_layer_size'] = 200  # neurons in the first layer
+    params['second_layer_size'] = 20  # neurons in the second layer
+    params['third_layer_size'] = 50  # neurons in the third layer
+    params['episodes'] = 150
     params['memory_size'] = 2500
     params['batch_size'] = 1000
     # Settings
@@ -37,8 +36,9 @@ def define_parameters():
     params['train'] = False
     params["test"] = True
     params['plot_score'] = True
-    params['log_path'] = 'logs/scores_' + str(datetime.datetime.now().strftime("%Y%m%d%H%M%S")) +'.txt'
+    params['log_path'] = 'logs/scores_' + str(datetime.datetime.now().strftime("%Y%m%d%H%M%S")) + '.txt'
     return params
+
 
 def get_record(score, record):
     if score >= record:
@@ -50,36 +50,37 @@ def get_record(score, record):
 def plot_seaborn(array_counter, array_score, train):
     sns.set(color_codes=True, font_scale=1.5)
     sns.set_style("white")
-    plt.figure(figsize=(13,8))
-    fit_reg = False if train== False else True        
+    plt.figure(figsize=(13, 8))
+    fit_reg = False if train == False else True
     ax = sns.regplot(
         np.array([array_counter])[0],
         np.array([array_score])[0],
-        #color="#36688D",
+        # color="#36688D",
         x_jitter=.1,
         scatter_kws={"color": "#36688D"},
         label='Data',
-        fit_reg = fit_reg,
+        fit_reg=fit_reg,
         line_kws={"color": "#F49F05"}
     )
     # Plot the average line
-    y_mean = [np.mean(array_score)]*len(array_counter)
-    ax.plot(array_counter,y_mean, label='Mean', linestyle='--')
+    y_mean = [np.mean(array_score)] * len(array_counter)
+    ax.plot(array_counter, y_mean, label='Mean', linestyle='--')
     ax.legend(loc='upper right')
     ax.set(xlabel='# games', ylabel='score')
     plt.show()
 
 
 def get_mean_stdev(array):
-    return statistics.mean(array), statistics.stdev(array)    
+    return statistics.mean(array), statistics.stdev(array)
 
 
 def test(params):
     params['load_weights'] = True
     params['train'] = False
-    params["test"] = False 
+    params["test"] = False
     score, mean, stdev = run(params)
     return score, mean, stdev
+
 
 def decode_state(encoded_state):
     """
@@ -93,12 +94,14 @@ def decode_state(encoded_state):
 
     return int(decoded, 2)
 
+
 def decode_action(encoded_action):
     if isinstance(encoded_action, np.ndarray):
         return encoded_action.argmax()
     return encoded_action
 
-def run(params, agent:Agent):
+
+def run(params, agent: Agent):
     """
     Run the DQN algorithm, based on the parameters previously set.   
     """
@@ -151,6 +154,7 @@ def run(params, agent:Agent):
 
     if params['plot_score']:
         plot_seaborn(counter_plot, score_plot, params['train'])
+
 
 if __name__ == '__main__':
     # Set options to activate or deactivate the game view, and its speed

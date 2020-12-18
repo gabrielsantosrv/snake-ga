@@ -32,7 +32,7 @@ class Agent:
         if np.random.uniform(0, 1) < self.epsilon:
             action = self.action_space[randint(0, self.num_actions-1)]
         else:
-            action = np.argmax(self.Q[state, :])
+            action = self.action_space[np.argmax(self.Q[state, :])]
         return action
 
     @abstractmethod
