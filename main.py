@@ -1,6 +1,6 @@
 import argparse
-import datetime
 import distutils.util
+import time
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -59,7 +59,7 @@ def decode_action(encoded_action):
     return encoded_action
 
 
-def run(params, agent: Agent):
+def run(agent: Agent, episodes, display, speed):
     pygame.init()
 
     env = Environment(440, 440)
@@ -70,13 +70,13 @@ def run(params, agent: Agent):
                'scores': [],
                'rewards': []}
 
-    while episode < params['episodes']:
+    while episode < episodes:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
 
-        if params['display']:
+        if display:
             screen.display()
 
         state1, done = env.reset()
@@ -99,14 +99,14 @@ def run(params, agent: Agent):
             action1 = action2
             episode_reward += reward
 
-            if params['display']:
+            if display:
                 screen.display()
-                pygame.time.wait(params['speed'])
+                pygame.time.wait(speed)
 
         episode += 1
         print(f'Game {episode}      Score: {env.game.score}')
 
-        mean_reward = episode_reward/params['episodes']
+        mean_reward = episode_reward/episodes
         metrics['episodes'].append(episode)
         metrics['rewards'].append(mean_reward)
         metrics['scores'].append(env.game.score)
@@ -125,23 +125,17 @@ if __name__ == '__main__':
     args = parser.parse_args()
     print("Args", args)
 
-    params = dict()
-    params['display'] = args.display
-    params['speed'] = args.speed
-    params['episodes'] = args.episodes
-
     # Defining all the required parameters
-    epsilon = 1
-    max_steps = 100
-    alpha = 0.5
+    N0 = 1
     gamma = 1
 
     action_space = np.eye(3)
     num_actions = 3
     num_state = 2 ** 11
-    qLearningAgent = QLearningAgent(epsilon, alpha, gamma, num_state, num_actions, action_space)
+    qLearningAgent = QLearningAgent(N0, gamma, num_state, num_actions, action_space)
 
-    metrics = run(params, qLearningAgent)
+    metrics = run(qLearningAgent, episodes=args.episodes, speed=args.speed, display=args.display)
     plot_metrics(metrics, filepath=args.figure)
+    time.time()
 
 

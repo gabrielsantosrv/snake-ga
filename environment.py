@@ -4,13 +4,30 @@ from operator import add
 from base_classes import Game
 
 
+def default_reward(env):
+    """
+    Return the reward.
+    The reward is:
+        -10 when Snake crashes.
+        +10 when Snake eats food
+        0 otherwise
+    """
+    reward = 0
+    if env.game.crash:
+        reward = -10
+    elif env.player.eaten:
+        reward = 10
+
+    return reward
+
 class Environment:
-    def __init__(self, game_width, game_height):
+    def __init__(self, game_width, game_height, reward_function=default_reward):
         self.game_width = game_width
         self.game_height = game_height
         self.game = Game(game_width, game_height)
         self.player = self.game.player
         self.food = self.game.food
+        self.get_reward = reward_function
 
     def reset(self):
         self.game = Game(self.game_width, self.game_height)
@@ -21,25 +38,9 @@ class Environment:
     def step(self, action):
         self.player.do_move(action, self.player.x, self.player.y, self.game, self.food)
         state = self.__get_state()
-        reward = self.__get_reward()
+        reward = self.get_reward(self)
         done = self.game.crash
         return state, reward, done
-
-    def __get_reward(self):
-        """
-        Return the reward.
-        The reward is:
-            -10 when Snake crashes.
-            +10 when Snake eats food
-            0 otherwise
-        """
-        self.reward = 0
-        if self.game.crash:
-            self.reward = -10
-            return self.reward
-        if self.player.eaten:
-            self.reward = 10
-        return self.reward
 
     def __get_state(self):
         """

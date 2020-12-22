@@ -52,7 +52,7 @@ class Player(object):
             self.eaten = False
             self.food = self.food + 1
         if np.array_equal(move, [1, 0, 0]):
-            move_array = self.x_change, self.y_change
+            move_array = self.x_change, self.y_change  # keep going the same direction
         elif np.array_equal(move, [0, 1, 0]) and self.y_change == 0:  # right - going horizontal
             move_array = [0, self.x_change]
         elif np.array_equal(move, [0, 1, 0]) and self.x_change == 0:  # right - going vertical
