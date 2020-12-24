@@ -89,3 +89,7 @@ class SARSAAgent(Agent):
         predict = self.Q[prev_state, prev_action]
         target = reward + self.gamma * self.Q[next_state, next_action]
         self.Q[prev_state, prev_action] += alpha * (target - predict)
+
+class MonteCarloAgent(QLearningAgent):
+    pass
+
