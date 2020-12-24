@@ -70,3 +70,22 @@ class QLearningAgent(Agent):
         predict = self.Q[prev_state, prev_action]
         target = reward + self.gamma * np.max(self.Q[next_state, :])
         self.Q[prev_state, prev_action] += alpha * (target - predict)
+
+class SARSAAgent(Agent):
+    def update(self, prev_state, next_state, reward, prev_action, next_action):
+        """
+        Update the action value function using the SARSA update.
+        Q(S, A) = Q(S, A) + alpha(reward + (gamma * Q(S_, A_) - Q(S, A))
+        Args:
+            prev_state: The previous state
+            next_state: The next state
+            reward: The reward for taking the respective action
+            prev_action: The previous action
+            next_action: The next action
+        Returns:
+            None
+        """
+        alpha = 1 / self.state_action_counter[prev_state, prev_action]
+        predict = self.Q[prev_state, prev_action]
+        target = reward + self.gamma * self.Q[next_state, next_action]
+        self.Q[prev_state, prev_action] += alpha * (target - predict)
