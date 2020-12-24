@@ -70,3 +70,6 @@ class QLearningAgent(Agent):
         predict = self.Q[prev_state, prev_action]
         target = reward + self.gamma * np.max(self.Q[next_state, :])
         self.Q[prev_state, prev_action] += alpha * (target - predict)
+
+class MonteCarloAgent(QLearningAgent):
+    pass
