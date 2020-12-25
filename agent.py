@@ -28,6 +28,10 @@ class Agent:
         # N(S, a):  number of times that action a has been selected from state s
         self.state_action_counter = np.zeros((self.num_state, self.num_actions))
 
+        # Usados só no SARSA lambda
+        self.E = np.zeros((self.num_state, self.num_actions))
+        self.lambda_value = 0
+
     """
     The Base class that is implemented by
     other classes to avoid the duplicate 'choose_action'
@@ -90,6 +94,17 @@ class SARSAAgent(Agent):
         target = reward + self.gamma * self.Q[next_state, next_action]
         self.Q[prev_state, prev_action] += alpha * (target - predict)
 
+class SARSALambdaAgent(Agent):
+    def update(self, prev_state, next_state, reward, prev_action, next_action):
+        delta = reward + self.gamma*self.Q[next_state, next_action] - self.Q[prev_state, prev_action]
+        self.E[prev_state, prev_action] += 1
+
+        alpha = 1 / self.state_action_counter[prev_state, prev_action]
+
+        for s in range(self.num_state):
+            for a in range(self.num_actions):
+                self.Q[prev_state, prev_action] += alpha * delta * self.E[s, a];
+                self.E[prev_state, prev_action] = self.gamma * self.lambda_value * self.E[s, a];
+
 class MonteCarloAgent(QLearningAgent):
     pass
-
