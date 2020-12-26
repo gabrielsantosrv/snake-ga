@@ -134,7 +134,7 @@ if __name__ == '__main__':
     num_state = 2 ** 11
     qLearningAgent = QLearningAgent(N0, gamma, num_state, num_actions, action_space)
 
-    metrics = run(qLearningAgent, episodes=args.episodes, speed=args.speed, display=args.display)
+    metrics = run(qLearningAgent, episodes=500, speed=5, display=args.display)
     plot_metrics(metrics, filepath=args.figure)
     time.time()
 
